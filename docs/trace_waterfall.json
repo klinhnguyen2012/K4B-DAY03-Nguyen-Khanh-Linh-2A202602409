@@ -6,7 +6,7 @@
     "action_type": "FINAL_ANSWER",
     "thought": "Đây là câu hỏi giới thiệu nên không cần gọi công cụ.",
     "output": "Tôi hỗ trợ phân tích hồ sơ, tìm trường và học bổng, chỉ ra yêu cầu còn thiếu, rồi tạo checklist và timeline. Bạn nên cung cấp GPA kèm thang điểm, chứng chỉ, hoạt động, ngành, bậc học, khu vực, kỳ nhập học và nhu cầu tài chính.",
-    "latency_ms": 0.01
+    "latency_ms": 0.0
   },
   {
     "step": 1,
@@ -148,8 +148,8 @@
       }
     },
     "provider_latency_ms": 0.0,
-    "tool_latency_ms": 0.01,
-    "latency_ms": 0.01
+    "tool_latency_ms": 0.02,
+    "latency_ms": 0.02
   },
   {
     "step": 3,
