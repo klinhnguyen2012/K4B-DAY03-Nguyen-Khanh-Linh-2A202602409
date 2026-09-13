@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScholarAI — Scholarship Planning Agent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #1a3a6e;
+      --blue2:   #2563eb;
+      --green:   #16a34a;
+      --orange:  #ea580c;
+      --red:     #dc2626;
+      --gray:    #f5f7fa;
+      --border:  #e2e8f0;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --white:   #ffffff;
+      --shadow:  0 2px 12px rgba(0,0,0,.08);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gray); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── NAVBAR ── */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 32px;
+      padding: 0 24px; height: 56px; flex-shrink: 0;
+      box-shadow: var(--shadow);
+    }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--blue); text-decoration: none; }
+    .logo span { font-size: 1.3rem; }
+    .nav-links { display: flex; gap: 4px; flex: 1; }
+    .nav-link { padding: 6px 14px; border-radius: 8px; font-size: .875rem; color: var(--muted); cursor: pointer; transition: all .15s; border: none; background: none; }
+    .nav-link:hover, .nav-link.active { background: #eff6ff; color: var(--blue2); font-weight: 500; }
+    .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: .85rem; }
+
+    /* ── LAYOUT ── */
+    .main { display: grid; grid-template-columns: 240px 1fr 320px; gap: 16px; padding: 16px; flex: 1; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    .profile-card {
+      background: var(--blue); border-radius: 14px; padding: 20px;
+      color: white; text-align: center;
+    }
+    .profile-avatar {
+      width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
+      font-size: 1.8rem;
+    }
+    .profile-name { font-weight: 700; font-size: .95rem; margin-bottom: 2px; }
+    .profile-id { font-size: .78rem; opacity: .7; margin-bottom: 12px; }
+    .badges { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .badge {
+      padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 600;
+    }
+    .badge-green  { background: #dcfce7; color: #15803d; }
+    .badge-orange { background: #ffedd5; color: #c2410c; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-red    { background: #fee2e2; color: #b91c1c; }
+    .badge-white  { background: rgba(255,255,255,.15); color: white; }
+    .tag { background: rgba(255,255,255,.12); border-radius: 6px; font-size: .72rem; padding: 3px 8px; margin: 2px; display: inline-block; }
+    .sidebar-actions { display: flex; flex-direction: column; gap: 8px; }
+    .btn-primary { background: var(--blue2); color: white; border: none; border-radius: 10px; padding: 10px 14px; font-size: .85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; justify-content: center; transition: background .15s; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: white; color: var(--blue); border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 14px; font-size: .85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; justify-content: center; transition: all .15s; }
+    .btn-outline:hover { border-color: var(--blue2); color: var(--blue2); }
+    .stat-card { background: white; border-radius: 12px; padding: 14px; box-shadow: var(--shadow); }
+    .stat-label { font-size: .72rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--blue); }
+    .stat-desc { font-size: .7rem; color: var(--muted); }
+
+    /* ── CHAT ── */
+    .chat-panel { background: white; border-radius: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+    .chat-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .chat-header h3 { font-size: .95rem; font-weight: 600; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-left: auto; }
+    .status-label { font-size: .75rem; color: #22c55e; font-weight: 500; }
+    .chat-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .msg-user { align-self: flex-end; max-width: 80%; }
+    .msg-bubble-user { background: var(--blue2); color: white; border-radius: 14px 14px 2px 14px; padding: 10px 14px; font-size: .875rem; line-height: 1.5; }
+    .msg-agent { align-self: flex-start; max-width: 90%; }
+    .msg-agent-label { font-size: .7rem; color: var(--muted); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .trace-card { background: var(--gray); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: .8rem; line-height: 1.6; }
+    .trace-thought { color: #7c3aed; }
+    .trace-action  { color: #0369a1; font-family: monospace; background: #f0f9ff; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+    .trace-obs     { color: #166534; }
+    .trace-final   { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 12px; font-size: .85rem; color: #14532d; margin-top: 2px; }
+    .trace-final strong { display: block; font-size: .75rem; color: var(--green); margin-bottom: 4px; }
+    .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; }
+    .chat-input { flex: 1; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .875rem; resize: none; font-family: inherit; outline: none; transition: border .15s; background: var(--gray); }
+    .chat-input:focus { border-color: var(--blue2); background: white; }
+    .send-btn { background: var(--blue2); color: white; border: none; border-radius: 10px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; flex-shrink: 0; }
+    .send-btn:hover { background: #1d4ed8; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    .panel-card { background: white; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+    .panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+    .panel-header h3 { font-size: .9rem; font-weight: 600; flex: 1; }
+    .scholarship-list { display: flex; flex-direction: column; gap: 1px; }
+    .s-card { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .s-card:last-child { border-bottom: none; }
+    .s-name { font-weight: 600; font-size: .875rem; margin-bottom: 3px; }
+    .s-uni  { font-size: .78rem; color: var(--muted); margin-bottom: 8px; }
+    .s-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .s-funding { font-weight: 700; font-size: .85rem; color: var(--blue2); }
+    .s-deadline { font-size: .75rem; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; display: flex; align-items: center; gap: 3px; }
+    .s-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .s-tag { border-radius: 6px; font-size: .72rem; font-weight: 500; padding: 2px 8px; }
+    .tag-ok   { background: #dcfce7; color: #15803d; }
+    .tag-warn { background: #ffedd5; color: #c2410c; }
+    .tag-err  { background: #fee2e2; color: #b91c1c; }
+    .plan-btn { background: var(--blue); color: white; border: none; border-radius: 8px; padding: 6px 14px; font-size: .78rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+    .plan-btn:hover { background: var(--blue2); }
+
+    /* ── TIMELINE ── */
+    .timeline-body { padding: 16px; }
+    .timeline-label { font-size: .78rem; color: var(--muted); margin-bottom: 12px; font-weight: 500; }
+    .timeline-row { display: flex; align-items: flex-start; gap: 0; position: relative; }
+    .timeline-row::before { content: ''; position: absolute; top: 12px; left: 12px; right: 12px; height: 2px; background: var(--border); z-index: 0; }
+    .timeline-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; z-index: 1; }
+    .t-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; border: 2px solid white; }
+    .t-dot.done    { background: #16a34a; color: white; }
+    .t-dot.active  { background: var(--blue2); color: white; box-shadow: 0 0 0 4px #dbeafe; }
+    .t-dot.pending { background: #f59e0b; color: white; }
+    .t-dot.future  { background: var(--border); color: var(--muted); }
+    .t-title { font-size: .72rem; font-weight: 600; text-align: center; color: var(--text); }
+    .t-date  { font-size: .68rem; color: var(--muted); }
+
+    /* Typing animation */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .typing span { display: inline-block; width: 6px; height: 6px; background: var(--muted); border-radius: 50%; margin: 0 1px; animation: blink 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: .2s; }
+    .typing span:nth-child(3) { animation-delay: .4s; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="logo" href="#"><span>🎓</span> ScholarAI</a>
+  <div class="nav-links">
+    <button class="nav-link active">🔍 Tìm học bổng</button>
+    <button class="nav-link">👤 Hồ sơ của tôi</button>
+    <button class="nav-link">📋 Kế hoạch</button>
+    <button class="nav-link">🕒 Lịch sử</button>
+  </div>
+  <div class="nav-right">
+    <span style="font-size:.85rem;color:var(--muted)">🔔</span>
+    <div class="avatar">KL</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="profile-card">
+      <div class="profile-avatar">👩‍🎓</div>
+      <div class="profile-name">Nguyễn Khánh Linh</div>
+      <div class="profile-id">SV · 2A202602409</div>
+      <div class="badges">
+        <span class="badge badge-white">GPA 3.5/4.0</span>
+        <span class="badge badge-orange">IELTS 6.0</span>
+      </div>
+      <div>
+        <span class="tag">Câu lạc bộ Công nghệ</span>
+        <span class="tag">Thạc sĩ CNTT</span>
+        <span class="tag">Kỳ 2027</span>
+      </div>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn-primary" onclick="startNewChat()">🔍 Tìm học bổng mới</button>
+      <button class="btn-outline" onclick="scrollTimeline()">📋 Xem kế hoạch</button>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Tổng quan</div>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-value" style="color:#2563eb">2</div>
+          <div class="stat-desc">Học bổng tìm thấy</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" style="color:#16a34a">1</div>
+          <div class="stat-desc">Đủ điều kiện GPA</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" style="color:#ea580c">1</div>
+          <div class="stat-desc">Cần bổ sung</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" style="color:#7c3aed">5</div>
+          <div class="stat-desc">TC đã chạy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Test Suite</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
+          <span style="color:#16a34a">✅</span> TC01 — Direct query
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
+          <span style="color:#16a34a">✅</span> TC02 — Profile lookup
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
+          <span style="color:#16a34a">✅</span> TC03 — Plan creation
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
+          <span style="color:#16a34a">✅</span> TC04 — Multi-step
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
+          <span style="color:#16a34a">✅</span> TC05 — Edge case
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div class="chat-panel">
+    <div class="chat-header">
+      <span>💬</span>
+      <h3>AI Chat — ReAct Agent</h3>
+      <div class="status-dot"></div>
+      <span class="status-label">Online · Mock Mode</span>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <!-- User message -->
+      <div class="msg-user">
+        <div class="msg-bubble-user">
+          Em có GPA 3.5/4.0, IELTS 6.0 và từng tham gia câu lạc bộ công nghệ. Em muốn học thạc sĩ ngành CNTT vào kỳ 2027 và cần học bổng hỗ trợ học phí. Hãy tìm các lựa chọn phù hợp!
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="msg-agent">
+        <div class="msg-agent-label">🤖 Scholarship Agent · Step 1/5</div>
+        <div class="trace-card">
+          <div class="trace-thought">🧠 <strong>Thought:</strong> Hồ sơ và mục tiêu đã có trong câu hỏi; cần tìm học bổng phù hợp.</div>
+          <div style="margin-top:4px">🛠️ <strong>Action:</strong> <span class="trace-action">scholarship_search(degree="Thạc sĩ", major="CNTT", regions=["VN","Quốc tế"], intake="2027")</span></div>
+          <div style="margin-top:4px" class="trace-obs">👁️ <strong>Observation:</strong> Tìm thấy <strong>2 học bổng</strong> phù hợp trong bộ dữ liệu thử nghiệm.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="msg-agent">
+        <div class="msg-agent-label">🤖 Scholarship Agent · Step 2/5</div>
+        <div class="trace-card">
+          <div class="trace-thought">🧠 <strong>Thought:</strong> Đã có danh sách; cần đọc điều kiện chi tiết của lựa chọn đầu tiên.</div>
+          <div style="margin-top:4px">🛠️ <strong>Action:</strong> <span class="trace-action">scholarship_details(scholarship_id="HB_TEST_01", intake="2027")</span></div>
+          <div style="margin-top:4px" class="trace-obs">👁️ <strong>Observation:</strong> GPA tối thiểu 3.2/4.0 ✅ | IELTS tối thiểu 6.5 ⚠️ | Deadline: 31/01/2027</div>
+        </div>
+      </div>
+
+      <!-- Final Answer -->
+      <div class="msg-agent">
+        <div class="msg-agent-label">🤖 Scholarship Agent · Final Answer</div>
+        <div class="trace-final">
+          <strong>🏁 Kết quả tổng hợp</strong>
+          Tìm được <strong>2 học bổng thử nghiệm</strong> phù hợp với mục tiêu Thạc sĩ CNTT kỳ 2027.<br><br>
+          ✅ <strong>HB_TEST_01</strong> — GPA 3.5 đạt mức tối thiểu 3.2, nhưng IELTS 6.0 chưa đạt mức <strong>6.5</strong> yêu cầu. Cần thi lại IELTS trước 30/11/2026.<br><br>
+          ❌ <strong>HB_TEST_02</strong> — Yêu cầu GPA 3.6/4.0; hồ sơ hiện tại chưa đủ.<br><br>
+          📋 Đã tạo kế hoạch chuẩn bị cho HB_TEST_01. Xem timeline bên phải →
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Nhập câu hỏi về học bổng..." onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" onclick="sendMessage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="rightPanel">
+
+    <!-- Scholarship Cards -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <span>🎓</span>
+        <h3>Kết quả học bổng</h3>
+        <span style="font-size:.75rem;color:var(--muted)">2 lựa chọn</span>
+      </div>
+      <div class="scholarship-list">
+        <!-- Card 1 -->
+        <div class="s-card">
+          <div class="s-name">Mock Technology Excellence Scholarship</div>
+          <div class="s-uni">🏛️ Đại học Công nghệ Mẫu · 🇻🇳 Việt Nam</div>
+          <div class="s-meta">
+            <span class="s-funding">75% học phí</span>
+            <span class="s-deadline">📅 31/01/2027</span>
+          </div>
+          <div class="s-tags">
+            <span class="s-tag tag-ok">✅ Đủ điều kiện GPA</span>
+            <span class="s-tag tag-warn">⚠️ Cần nâng IELTS 6.5</span>
+          </div>
+          <button class="plan-btn" onclick="showToast('Đã mở kế hoạch HB_TEST_01!')">📋 Xem kế hoạch</button>
+        </div>
+        <!-- Card 2 -->
+        <div class="s-card">
+          <div class="s-name">Mock Global Computing Scholarship</div>
+          <div class="s-uni">🏛️ International Sample University · 🇦🇺 Úc</div>
+          <div class="s-meta">
+            <span class="s-funding">Toàn phần</span>
+            <span class="s-deadline">📅 15/12/2026</span>
+          </div>
+          <div class="s-tags">
+            <span class="s-tag tag-err">❌ Cần GPA 3.6+</span>
+            <span class="s-tag tag-err">❌ Cần IELTS 7.0</span>
+          </div>
+          <button class="plan-btn" style="background:#94a3b8;cursor:default">🔒 Chưa đủ điều kiện</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="panel-card" id="timelinePanel">
+      <div class="panel-header">
+        <span>📋</span>
+        <h3>Kế hoạch — HB_TEST_01</h3>
+        <span style="font-size:.75rem;background:#dcfce7;color:#15803d;border-radius:6px;padding:2px 8px;font-weight:600">Đang chạy</span>
+      </div>
+      <div class="timeline-body">
+        <div class="timeline-label">Từ hôm nay đến deadline 31/01/2027</div>
+        <div class="timeline-row">
+          <div class="timeline-step">
+            <div class="t-dot active">1</div>
+            <div class="t-title">Nâng IELTS<br>6.0 → 6.5</div>
+            <div class="t-date">30/11/2026</div>
+          </div>
+          <div class="timeline-step">
+            <div class="t-dot pending">2</div>
+            <div class="t-title">CV & Bài<br>luận</div>
+            <div class="t-date">20/12/2026</div>
+          </div>
+          <div class="timeline-step">
+            <div class="t-dot future">3</div>
+            <div class="t-title">Thư giới<br>thiệu</div>
+            <div class="t-date">10/01/2027</div>
+          </div>
+          <div class="timeline-step">
+            <div class="t-dot future">🏁</div>
+            <div class="t-title">Nộp hồ<br>sơ</div>
+            <div class="t-date">31/01/2027</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">Checklist chi tiết</div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--blue2)"> Xác nhận GPA kèm thang điểm với trường
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--blue2)"> Đăng ký thi IELTS và lên lịch ôn tập
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--blue2)"> Hoàn thiện CV và bảng điểm
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--blue2)"> Viết bài luận đúng yêu cầu
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--blue2)"> Xin 2 thư giới thiệu
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;cursor:pointer">
+            <input type="checkbox" style="accent-color:var(--blue2)"> Kiểm tra hồ sơ và nộp sớm
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:#1e293b;color:white;padding:12px 20px;border-radius:10px;font-size:.85rem;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.2)"></div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.transform = 'translateY(0)';
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.transform = 'translateY(80px)'; t.style.opacity = '0'; }, 2500);
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  const MOCK_RESPONSES = [
+    {
+      q: ['sv2026001', 'tra cứu', 'hồ sơ', 'profile'],
+      steps: [
+        { thought: 'Cần tra cứu hồ sơ SV2026001 trước khi đánh giá phù hợp.', action: 'profile_query(student_id="SV2026001")', obs: 'GPA 3.5/4.0 | IELTS 6.0 (hết hạn 2027-06-30) | Hoạt động: Câu lạc bộ Công nghệ' }
+      ],
+      final: '📋 Hồ sơ SV2026001 — Nguyễn Văn An:\n• GPA: 3.5/4.0 ✅\n• IELTS: 6.0 (hết hạn 30/06/2027) ⚠️ (cần 6.5 cho HB_TEST_01)\n• Hoạt động: Câu lạc bộ Công nghệ ✅\n\nHồ sơ gần đủ điều kiện HB_TEST_01. Cần ưu tiên nâng IELTS lên 6.5 trước 30/11/2026.'
+    },
+    {
+      q: ['hỗ trợ', 'cung cấp', 'làm gì', 'chức năng'],
+      steps: [],
+      final: '🎓 Tôi là Scholarship Planning Agent, hỗ trợ:\n1. 🔍 Phân tích hồ sơ học sinh/sinh viên\n2. 📚 Tìm trường, chương trình và học bổng phù hợp\n3. 📋 Xác định yêu cầu còn thiếu và khoảng cách\n4. ⏱️ Tạo checklist và timeline cá nhân hóa\n\nBạn cần cung cấp: GPA kèm thang điểm, chứng chỉ ngoại ngữ, ngành học, bậc học, kỳ nhập học và nhu cầu tài chính.'
+    },
+    {
+      q: ['sv9999', 'không tồn tại', 'không tìm thấy'],
+      steps: [
+        { thought: 'Cần xác minh hồ sơ trước khi đề xuất học bổng.', action: 'profile_query(student_id="SV9999999")', obs: 'NOT_FOUND — Không tìm thấy hồ sơ có mã SV9999999.' }
+      ],
+      final: '❌ Không tìm thấy hồ sơ với mã được cung cấp.\n\nVui lòng cung cấp thông tin để tôi hỗ trợ:\n• GPA kèm thang điểm\n• Chứng chỉ ngoại ngữ\n• Ngành học và bậc học\n• Kỳ nhập học dự kiến\n• Khu vực mong muốn\n• Nhu cầu tài chính'
+    }
+  ];
+
+  function getMockResponse(text) {
+    const lower = text.toLowerCase();
+    for (const r of MOCK_RESPONSES) {
+      if (r.q.some(k => lower.includes(k))) return r;
+    }
+    return {
+      steps: [
+        { thought: 'Phân tích yêu cầu và chọn công cụ phù hợp.', action: 'scholarship_search(degree="Thạc sĩ", major="CNTT", regions=["VN","Quốc tế"], intake="2027")', obs: 'Tìm thấy 2 học bổng thử nghiệm: HB_TEST_01 (Việt Nam) và HB_TEST_02 (Úc).' }
+      ],
+      final: '🔍 Kết quả tìm kiếm: 2 học bổng thử nghiệm phù hợp với mục tiêu Thạc sĩ CNTT kỳ 2027.\n\n✅ HB_TEST_01 — 75% học phí | GPA đạt | Cần nâng IELTS 6.5 | Deadline 31/01/2027\n❌ HB_TEST_02 — Toàn phần (Úc) | Cần GPA 3.6 và IELTS 7.0\n\nGợi ý: Ưu tiên HB_TEST_01 và nâng IELTS trước 30/11/2026!'
+    };
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    const body = document.getElementById('chatBody');
+
+    // User bubble
+    const userDiv = document.createElement('div');
+    userDiv.className = 'msg-user';
+    userDiv.innerHTML = `<div class="msg-bubble-user">${text}</div>`;
+    body.appendChild(userDiv);
+
+    // Typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'msg-agent';
+    typingDiv.innerHTML = `<div class="msg-agent-label">🤖 Scholarship Agent</div><div class="trace-card typing"><span></span><span></span><span></span></div>`;
+    body.appendChild(typingDiv);
+    body.scrollTop = body.scrollHeight;
+
+    const mock = getMockResponse(text);
+    await sleep(700);
+    typingDiv.remove();
+
+    // Steps
+    let stepNum = 1;
+    for (const step of mock.steps) {
+      const stepDiv = document.createElement('div');
+      stepDiv.className = 'msg-agent';
+      stepDiv.innerHTML = `
+        <div class="msg-agent-label">🤖 Scholarship Agent · Step ${stepNum}/${mock.steps.length + 1}</div>
+        <div class="trace-card">
+          <div class="trace-thought">🧠 <strong>Thought:</strong> ${step.thought}</div>
+          <div style="margin-top:4px">🛠️ <strong>Action:</strong> <span class="trace-action">${step.action}</span></div>
+          <div style="margin-top:4px" class="trace-obs">👁️ <strong>Observation:</strong> ${step.obs}</div>
+        </div>`;
+      body.appendChild(stepDiv);
+      body.scrollTop = body.scrollHeight;
+      await sleep(600);
+      stepNum++;
+    }
+
+    // Final answer
+    const finalDiv = document.createElement('div');
+    finalDiv.className = 'msg-agent';
+    finalDiv.innerHTML = `
+      <div class="msg-agent-label">🤖 Scholarship Agent · Final Answer</div>
+      <div class="trace-final"><strong>🏁 Kết quả</strong>${mock.final.replace(/\n/g, '<br>')}</div>`;
+    body.appendChild(finalDiv);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function startNewChat() {
+    const body = document.getElementById('chatBody');
+    body.innerHTML = '';
+    const note = document.createElement('div');
+    note.style = 'text-align:center;color:var(--muted);font-size:.82rem;padding:20px';
+    note.textContent = '💬 Bắt đầu cuộc hội thoại mới. Hãy nhập câu hỏi về học bổng!';
+    body.appendChild(note);
+    document.getElementById('chatInput').focus();
+    showToast('Đã mở cuộc hội thoại mới ✨');
+  }
+
+  function scrollTimeline() {
+    document.getElementById('timelinePanel').scrollIntoView({ behavior: 'smooth' });
+    showToast('📋 Đang xem kế hoạch HB_TEST_01');
+  }
+
+  // Nav link toggle
+  document.querySelectorAll('.nav-link').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
