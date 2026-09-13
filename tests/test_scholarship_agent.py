@@ -122,5 +122,85 @@ class MCPServerTests(unittest.TestCase):
         self.assertEqual(response["result"]["status"], "SUCCESS")
 
 
+class MockProviderTests(unittest.TestCase):
+    def test_tc03_calls_tools_in_order(self):
+        from providers import MockOfflineProvider
+
+        provider = MockOfflineProvider()
+        prompt = (
+            "Dùng hồ sơ sinh viên SV2026001 và học bổng thử nghiệm "
+            "HB_TEST_01 đã chọn, hãy tạo checklist."
+        )
+        first = provider.generate_with_tools(prompt, TOOLS_SCHEMA, observations=[])
+        second = provider.generate_with_tools(
+            prompt,
+            TOOLS_SCHEMA,
+            observations=[
+                {
+                    "tool_name": "profile_query",
+                    "result": {"status": "SUCCESS"},
+                }
+            ],
+        )
+        third = provider.generate_with_tools(
+            prompt,
+            TOOLS_SCHEMA,
+            observations=[
+                {"tool_name": "profile_query", "result": {"status": "SUCCESS"}},
+                {
+                    "tool_name": "scholarship_details",
+                    "result": {
+                        "status": "SUCCESS",
+                        "data": {"deadline": "2027-01-31T23:59:00+07:00"},
+                    },
+                },
+            ],
+        )
+
+        self.assertEqual(first["tool_name"], "profile_query")
+        self.assertEqual(second["tool_name"], "scholarship_details")
+        self.assertEqual(third["tool_name"], "study_plan_save")
+
+    def test_tc04_searches_then_reads_scholarship_details(self):
+        from providers import MockOfflineProvider
+
+        provider = MockOfflineProvider()
+        prompt = (
+            "GPA 3.5/4.0, IELTS 6.0, học thạc sĩ CNTT trong nước hoặc "
+            "quốc tế kỳ 2027, cần hỗ trợ học phí."
+        )
+        first = provider.generate_with_tools(prompt, TOOLS_SCHEMA, observations=[])
+        second = provider.generate_with_tools(
+            prompt,
+            TOOLS_SCHEMA,
+            observations=[
+                {
+                    "tool_name": "scholarship_search",
+                    "result": {
+                        "status": "SUCCESS",
+                        "data": [{"scholarship_id": "HB_TEST_01"}],
+                    },
+                }
+            ],
+        )
+
+        self.assertEqual(first["tool_name"], "scholarship_search")
+        self.assertEqual(second["tool_name"], "scholarship_details")
+
+    def test_tc05_finishes_after_not_found(self):
+        from providers import MockOfflineProvider
+
+        response = MockOfflineProvider().generate_with_tools(
+            "Tra cứu SV9999999 và đề xuất học bổng",
+            TOOLS_SCHEMA,
+            observations=[
+                {"tool_name": "profile_query", "result": {"status": "NOT_FOUND"}}
+            ],
+        )
+
+        self.assertEqual(response["type"], "text")
+        self.assertIn("không tìm thấy", response["content"].lower())
+
+
 if __name__ == "__main__":
     unittest.main()
