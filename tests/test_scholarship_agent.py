@@ -109,5 +109,18 @@ class ToolBackendTests(unittest.TestCase):
         self.assertEqual(invalid_priority["status"], "INVALID_ARGUMENTS")
 
 
+class MCPServerTests(unittest.TestCase):
+    def test_call_tool_wraps_result_as_json_rpc(self):
+        from mcp_server import MCPScholarshipServer
+
+        server = MCPScholarshipServer()
+        response = server.call_tool("profile_query", {"student_id": "SV2026001"})
+
+        self.assertEqual(response["jsonrpc"], "2.0")
+        self.assertEqual(response["server"], "scholarship-planning-mcp-server")
+        self.assertEqual(response["tool"], "profile_query")
+        self.assertEqual(response["result"]["status"], "SUCCESS")
+
+
 if __name__ == "__main__":
     unittest.main()
