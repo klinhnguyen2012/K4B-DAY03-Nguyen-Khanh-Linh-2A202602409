@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Chào bạn, Scholarship Planning Agent có thể hỗ trợ em những gì và em cần cung cấp những thông tin nào để tìm học bổng phù hợp?",
+    "expected_behavior": "Agent giới thiệu các chức năng chính như phân tích hồ sơ, tìm trường và học bổng, xác định yêu cầu còn thiếu, tạo checklist và timeline; đồng thời liệt kê các thông tin đầu vào cần thiết. Agent trả lời trực tiếp, không cần gọi Tool và không khẳng định một học bổng cụ thể còn mở.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "single_tool_query",
+    "question": "Hãy tra cứu hồ sơ sinh viên SV2026001 và liệt kê những thông tin hiện có để chuẩn bị tìm học bổng phù hợp.",
+    "expected_behavior": "Agent nhận diện nhu cầu tra cứu, gọi Tool 'profile_query' với mã SV2026001, trình bày chính xác GPA kèm thang điểm, chứng chỉ, hoạt động và mục tiêu do Tool trả về, đồng thời chỉ rõ những trường thông tin còn thiếu mà không tự suy diễn dữ liệu.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "scholarship_plan_creation",
+    "question": "Dùng hồ sơ sinh viên SV2026001 và học bổng thử nghiệm HB_TEST_01 đã chọn, hãy tạo checklist chuẩn bị hồ sơ theo deadline của chương trình.",
+    "expected_behavior": "Agent tra cứu hồ sơ và yêu cầu của học bổng, xác định các giấy tờ hoặc điều kiện còn thiếu, sau đó tạo checklist có thời hạn và thứ tự ưu tiên; chỉ xác nhận đã lưu kế hoạch khi Tool trả về trạng thái SUCCESS.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Em có GPA 3.5/4.0, IELTS 6.0 và từng tham gia câu lạc bộ công nghệ. Em muốn học thạc sĩ ngành Công nghệ thông tin trong nước hoặc quốc tế vào kỳ nhập học 2027 và cần học bổng hỗ trợ học phí. Hãy tìm các lựa chọn phù hợp, chỉ ra những yêu cầu em còn thiếu và lập timeline chuẩn bị hồ sơ theo từng deadline.",
+    "expected_behavior": "Agent thực hiện chuỗi suy luận nhiều bước: tìm học bổng theo kỳ nhập học 2027; lấy điều kiện và deadline từ nguồn dữ liệu; đối chiếu với GPA, IELTS và hoạt động; sau đó đề xuất lựa chọn phù hợp cùng timeline cá nhân hóa, không bịa đặt học bổng hoặc deadline.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Hãy tra cứu hồ sơ sinh viên SV9999999 và đề xuất các học bổng phù hợp cho em.",
+    "expected_behavior": "Agent nhận kết quả NOT_FOUND từ Tool, thông báo lịch sự rằng không tìm thấy hồ sơ và yêu cầu người dùng cung cấp các thông tin tối thiểu như GPA kèm thang điểm, chứng chỉ, ngành học, kỳ nhập học và nhu cầu tài chính; không bịa đặt dữ liệu cá nhân hoặc đưa ra kết luận phù hợp khi chưa đủ thông tin.",
+    "complexity": "Medium"
+  }
+]

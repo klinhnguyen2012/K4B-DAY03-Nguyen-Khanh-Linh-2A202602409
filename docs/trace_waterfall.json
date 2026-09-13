@@ -1,29 +1,358 @@
 [
   {
     "step": 1,
-    "query": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
+    "query": "Chào bạn, Scholarship Planning Agent có thể hỗ trợ em những gì và em cần cung cấp những thông tin nào để tìm học bổng phù hợp?",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
     "action_type": "FINAL_ANSWER",
-    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
-    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-    "latency_ms": 2845.93
+    "thought": "Đây là câu hỏi giới thiệu nên không cần gọi công cụ.",
+    "output": "Tôi hỗ trợ phân tích hồ sơ, tìm trường và học bổng, chỉ ra yêu cầu còn thiếu, rồi tạo checklist và timeline. Bạn nên cung cấp GPA kèm thang điểm, chứng chỉ, hoạt động, ngành, bậc học, khu vực, kỳ nhập học và nhu cầu tài chính.",
+    "latency_ms": 0.01
   },
   {
     "step": 1,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Hãy tra cứu hồ sơ sinh viên SV2026001 và liệt kê những thông tin hiện có để chuẩn bị tìm học bổng phù hợp.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "academic_query",
+    "thought": "Cần tra cứu hồ sơ SV2026001 trước khi đánh giá hoặc lập kế hoạch.",
+    "tool_name": "profile_query",
     "arguments": {
       "student_id": "SV2026001"
     },
-    "observation": {},
-    "latency_ms": 799.12
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "data": {
+        "full_name": "Nguyễn Văn An",
+        "gpa": 3.5,
+        "gpa_scale": 4.0,
+        "certificates": [
+          {
+            "name": "IELTS",
+            "score": 6.0,
+            "expires_on": "2027-06-30"
+          }
+        ],
+        "activities": [
+          "Thành viên Câu lạc bộ Công nghệ"
+        ],
+        "target_degree": "Thạc sĩ",
+        "desired_major": "Công nghệ thông tin",
+        "preferred_regions": [
+          "Việt Nam",
+          "Quốc tế"
+        ],
+        "intake": "2027",
+        "funding_need": "Hỗ trợ học phí"
+      }
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.02,
+    "latency_ms": 0.02
   },
   {
     "step": 2,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Hãy tra cứu hồ sơ sinh viên SV2026001 và liệt kê những thông tin hiện có để chuẩn bị tìm học bổng phù hợp.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
     "action_type": "FINAL_ANSWER",
-    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1).",
-    "latency_ms": 10.0
+    "thought": "Đã có hồ sơ và câu hỏi chỉ yêu cầu liệt kê thông tin.",
+    "output": "Hồ sơ đã tra cứu: GPA 3.5/4.0; chứng chỉ [{\"name\": \"IELTS\", \"score\": 6.0, \"expires_on\": \"2027-06-30\"}]; hoạt động [\"Thành viên Câu lạc bộ Công nghệ\"]. Cần kiểm tra thêm yêu cầu riêng của từng học bổng trước khi kết luận.",
+    "latency_ms": 0.01
+  },
+  {
+    "step": 1,
+    "query": "Dùng hồ sơ sinh viên SV2026001 và học bổng thử nghiệm HB_TEST_01 đã chọn, hãy tạo checklist chuẩn bị hồ sơ theo deadline của chương trình.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Cần tra cứu hồ sơ SV2026001 trước khi đánh giá hoặc lập kế hoạch.",
+    "tool_name": "profile_query",
+    "arguments": {
+      "student_id": "SV2026001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "student_id": "SV2026001",
+      "data": {
+        "full_name": "Nguyễn Văn An",
+        "gpa": 3.5,
+        "gpa_scale": 4.0,
+        "certificates": [
+          {
+            "name": "IELTS",
+            "score": 6.0,
+            "expires_on": "2027-06-30"
+          }
+        ],
+        "activities": [
+          "Thành viên Câu lạc bộ Công nghệ"
+        ],
+        "target_degree": "Thạc sĩ",
+        "desired_major": "Công nghệ thông tin",
+        "preferred_regions": [
+          "Việt Nam",
+          "Quốc tế"
+        ],
+        "intake": "2027",
+        "funding_need": "Hỗ trợ học phí"
+      }
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.01,
+    "latency_ms": 0.01
+  },
+  {
+    "step": 2,
+    "query": "Dùng hồ sơ sinh viên SV2026001 và học bổng thử nghiệm HB_TEST_01 đã chọn, hãy tạo checklist chuẩn bị hồ sơ theo deadline của chương trình.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Đã có hồ sơ; cần đọc điều kiện và deadline của HB_TEST_01.",
+    "tool_name": "scholarship_details",
+    "arguments": {
+      "scholarship_id": "HB_TEST_01",
+      "intake": "2027"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "scholarship_id": "HB_TEST_01",
+      "intake": "2027",
+      "data": {
+        "scholarship_id": "HB_TEST_01",
+        "name": "Mock Technology Excellence Scholarship",
+        "university": "Đại học Công nghệ Mẫu",
+        "country": "Việt Nam",
+        "degree_level": "Thạc sĩ",
+        "majors": [
+          "Công nghệ thông tin",
+          "Khoa học máy tính"
+        ],
+        "intakes": [
+          "2027"
+        ],
+        "funding": "Hỗ trợ 75% học phí",
+        "funding_category": "Hỗ trợ học phí",
+        "requirements": {
+          "minimum_gpa": 3.2,
+          "gpa_scale": 4.0,
+          "english_certificate": "IELTS",
+          "minimum_english_score": 6.5,
+          "activities": "Ưu tiên dự án hoặc hoạt động liên quan đến công nghệ"
+        },
+        "required_documents": [
+          "CV",
+          "Bảng điểm",
+          "Bài luận",
+          "Hai thư giới thiệu",
+          "Chứng chỉ ngoại ngữ"
+        ],
+        "deadline": "2027-01-31T23:59:00+07:00",
+        "source": "Dữ liệu thử nghiệm nội bộ — không dùng để nộp hồ sơ thật"
+      }
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.01,
+    "latency_ms": 0.01
+  },
+  {
+    "step": 3,
+    "query": "Dùng hồ sơ sinh viên SV2026001 và học bổng thử nghiệm HB_TEST_01 đã chọn, hãy tạo checklist chuẩn bị hồ sơ theo deadline của chương trình.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Đã biết deadline và yêu cầu; có thể tạo checklist để lưu.",
+    "tool_name": "study_plan_save",
+    "arguments": {
+      "student_id": "SV2026001",
+      "scholarship_id": "HB_TEST_01",
+      "tasks": [
+        {
+          "title": "Nâng IELTS từ 6.0 lên tối thiểu 6.5",
+          "due_date": "2026-11-30",
+          "priority": "high"
+        },
+        {
+          "title": "Hoàn thiện CV, bảng điểm và bài luận",
+          "due_date": "2026-12-20",
+          "priority": "high"
+        },
+        {
+          "title": "Xin hai thư giới thiệu",
+          "due_date": "2027-01-10",
+          "priority": "medium"
+        }
+      ]
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "plan_id": "PLAN-SV2026001-HB_TEST_01",
+      "student_id": "SV2026001",
+      "scholarship_id": "HB_TEST_01",
+      "tasks": [
+        {
+          "title": "Nâng IELTS từ 6.0 lên tối thiểu 6.5",
+          "due_date": "2026-11-30",
+          "priority": "high"
+        },
+        {
+          "title": "Hoàn thiện CV, bảng điểm và bài luận",
+          "due_date": "2026-12-20",
+          "priority": "high"
+        },
+        {
+          "title": "Xin hai thư giới thiệu",
+          "due_date": "2027-01-10",
+          "priority": "medium"
+        }
+      ],
+      "message": "Đã lưu checklist và timeline thử nghiệm thành công."
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.01,
+    "latency_ms": 0.01
+  },
+  {
+    "step": 4,
+    "query": "Dùng hồ sơ sinh viên SV2026001 và học bổng thử nghiệm HB_TEST_01 đã chọn, hãy tạo checklist chuẩn bị hồ sơ theo deadline của chương trình.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Tool lưu kế hoạch đã trả kết quả; có thể phản hồi cuối cùng.",
+    "output": "Đã lưu checklist và timeline thử nghiệm thành công.",
+    "latency_ms": 0.0
+  },
+  {
+    "step": 1,
+    "query": "Em có GPA 3.5/4.0, IELTS 6.0 và từng tham gia câu lạc bộ công nghệ. Em muốn học thạc sĩ ngành Công nghệ thông tin trong nước hoặc quốc tế vào kỳ nhập học 2027 và cần học bổng hỗ trợ học phí. Hãy tìm các lựa chọn phù hợp, chỉ ra những yêu cầu em còn thiếu và lập timeline chuẩn bị hồ sơ theo từng deadline.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Hồ sơ và mục tiêu đã có trong câu hỏi; cần tìm học bổng phù hợp.",
+    "tool_name": "scholarship_search",
+    "arguments": {
+      "degree_level": "Thạc sĩ",
+      "major": "Công nghệ thông tin",
+      "regions": [
+        "Việt Nam",
+        "Quốc tế"
+      ],
+      "intake": "2027",
+      "funding_need": "Hỗ trợ học phí"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "data": [
+        {
+          "scholarship_id": "HB_TEST_01",
+          "name": "Mock Technology Excellence Scholarship",
+          "university": "Đại học Công nghệ Mẫu",
+          "country": "Việt Nam",
+          "degree_level": "Thạc sĩ",
+          "funding": "Hỗ trợ 75% học phí",
+          "intake": "2027",
+          "deadline": "2027-01-31T23:59:00+07:00",
+          "source": "Dữ liệu thử nghiệm nội bộ — không dùng để nộp hồ sơ thật",
+          "funding_match": true
+        },
+        {
+          "scholarship_id": "HB_TEST_02",
+          "name": "Mock Global Computing Scholarship",
+          "university": "International Sample University",
+          "country": "Úc",
+          "degree_level": "Thạc sĩ",
+          "funding": "Toàn bộ học phí",
+          "intake": "2027",
+          "deadline": "2026-12-15T23:59:00+11:00",
+          "source": "Dữ liệu thử nghiệm nội bộ — không dùng để nộp hồ sơ thật",
+          "funding_match": false
+        }
+      ],
+      "message": "Tìm thấy 2 học bổng thử nghiệm phù hợp."
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.02,
+    "latency_ms": 0.02
+  },
+  {
+    "step": 2,
+    "query": "Em có GPA 3.5/4.0, IELTS 6.0 và từng tham gia câu lạc bộ công nghệ. Em muốn học thạc sĩ ngành Công nghệ thông tin trong nước hoặc quốc tế vào kỳ nhập học 2027 và cần học bổng hỗ trợ học phí. Hãy tìm các lựa chọn phù hợp, chỉ ra những yêu cầu em còn thiếu và lập timeline chuẩn bị hồ sơ theo từng deadline.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Đã có danh sách; cần đọc điều kiện của lựa chọn đầu tiên.",
+    "tool_name": "scholarship_details",
+    "arguments": {
+      "scholarship_id": "HB_TEST_01",
+      "intake": "2027"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "scholarship_id": "HB_TEST_01",
+      "intake": "2027",
+      "data": {
+        "scholarship_id": "HB_TEST_01",
+        "name": "Mock Technology Excellence Scholarship",
+        "university": "Đại học Công nghệ Mẫu",
+        "country": "Việt Nam",
+        "degree_level": "Thạc sĩ",
+        "majors": [
+          "Công nghệ thông tin",
+          "Khoa học máy tính"
+        ],
+        "intakes": [
+          "2027"
+        ],
+        "funding": "Hỗ trợ 75% học phí",
+        "funding_category": "Hỗ trợ học phí",
+        "requirements": {
+          "minimum_gpa": 3.2,
+          "gpa_scale": 4.0,
+          "english_certificate": "IELTS",
+          "minimum_english_score": 6.5,
+          "activities": "Ưu tiên dự án hoặc hoạt động liên quan đến công nghệ"
+        },
+        "required_documents": [
+          "CV",
+          "Bảng điểm",
+          "Bài luận",
+          "Hai thư giới thiệu",
+          "Chứng chỉ ngoại ngữ"
+        ],
+        "deadline": "2027-01-31T23:59:00+07:00",
+        "source": "Dữ liệu thử nghiệm nội bộ — không dùng để nộp hồ sơ thật"
+      }
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.01,
+    "latency_ms": 0.01
+  },
+  {
+    "step": 3,
+    "query": "Em có GPA 3.5/4.0, IELTS 6.0 và từng tham gia câu lạc bộ công nghệ. Em muốn học thạc sĩ ngành Công nghệ thông tin trong nước hoặc quốc tế vào kỳ nhập học 2027 và cần học bổng hỗ trợ học phí. Hãy tìm các lựa chọn phù hợp, chỉ ra những yêu cầu em còn thiếu và lập timeline chuẩn bị hồ sơ theo từng deadline.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Đã có chi tiết để phân tích khoảng thiếu và tạo timeline.",
+    "output": "Lựa chọn thử nghiệm: Mock Technology Excellence Scholarship tại Đại học Công nghệ Mẫu, hạn 2027-01-31T23:59:00+07:00. GPA 3.5/4.0 đáp ứng mức tối thiểu 3.2, nhưng IELTS 6.0 chưa đạt mức 6.5. Nên thi lại IELTS trước 30/11/2026, hoàn thiện CV và bài luận trước 20/12/2026, xin thư giới thiệu trước 10/01/2027 và nộp trước deadline ít nhất 7 ngày. Dữ liệu này chỉ dùng thử nghiệm.",
+    "latency_ms": 0.0
+  },
+  {
+    "step": 1,
+    "query": "Hãy tra cứu hồ sơ sinh viên SV9999999 và đề xuất các học bổng phù hợp cho em.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Cần xác minh hồ sơ SV9999999 trước khi đề xuất học bổng.",
+    "tool_name": "profile_query",
+    "arguments": {
+      "student_id": "SV9999999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "message": "Không tìm thấy hồ sơ có mã 'SV9999999'."
+    },
+    "provider_latency_ms": 0.0,
+    "tool_latency_ms": 0.0,
+    "latency_ms": 0.0
+  },
+  {
+    "step": 2,
+    "query": "Hãy tra cứu hồ sơ sinh viên SV9999999 và đề xuất các học bổng phù hợp cho em.",
+    "provider": "MockOfflineProvider:Offline-Mock-Model-2026",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Observation trả NOT_FOUND nên tôi không được bịa dữ liệu.",
+    "output": "Không tìm thấy hồ sơ hoặc học bổng theo yêu cầu. Vui lòng cung cấp GPA kèm thang điểm, chứng chỉ, ngành học, kỳ nhập học, khu vực mong muốn và nhu cầu tài chính.",
+    "latency_ms": 0.0
   }
 ]

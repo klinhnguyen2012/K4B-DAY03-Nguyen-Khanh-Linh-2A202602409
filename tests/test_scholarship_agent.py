@@ -202,5 +202,68 @@ class MockProviderTests(unittest.TestCase):
         self.assertIn("không tìm thấy", response["content"].lower())
 
 
+class ReactLoopTests(unittest.TestCase):
+    @staticmethod
+    def _test_cases():
+        with (PROJECT_ROOT / "config" / "test_cases.json").open(encoding="utf-8") as file:
+            return json.load(file)
+
+    def test_tc03_records_three_tool_calls_and_final_answer(self):
+        from app import run_react_agent
+        from mcp_server import MCPScholarshipServer
+        from providers import MockOfflineProvider
+
+        traces = run_react_agent(
+            self._test_cases()[2]["question"],
+            MockOfflineProvider(),
+            MCPScholarshipServer(),
+        )
+        actions = [
+            trace.get("tool_name")
+            for trace in traces
+            if trace["action_type"] == "TOOL_EXECUTION"
+        ]
+
+        self.assertEqual(
+            actions,
+            ["profile_query", "scholarship_details", "study_plan_save"],
+        )
+        self.assertEqual(traces[-1]["action_type"], "FINAL_ANSWER")
+
+    def test_tc04_searches_then_reads_details(self):
+        from app import run_react_agent
+        from mcp_server import MCPScholarshipServer
+        from providers import MockOfflineProvider
+
+        traces = run_react_agent(
+            self._test_cases()[3]["question"],
+            MockOfflineProvider(),
+            MCPScholarshipServer(),
+        )
+        actions = [
+            trace.get("tool_name")
+            for trace in traces
+            if trace["action_type"] == "TOOL_EXECUTION"
+        ]
+
+        self.assertEqual(actions, ["scholarship_search", "scholarship_details"])
+        self.assertEqual(traces[-1]["action_type"], "FINAL_ANSWER")
+        self.assertIn("IELTS", traces[-1]["output"])
+
+    def test_tc05_does_not_invent_missing_profile(self):
+        from app import run_react_agent
+        from mcp_server import MCPScholarshipServer
+        from providers import MockOfflineProvider
+
+        traces = run_react_agent(
+            self._test_cases()[4]["question"],
+            MockOfflineProvider(),
+            MCPScholarshipServer(),
+        )
+
+        self.assertEqual(traces[0]["observation"]["status"], "NOT_FOUND")
+        self.assertIn("không tìm thấy", traces[-1]["output"].lower())
+
+
 if __name__ == "__main__":
     unittest.main()
